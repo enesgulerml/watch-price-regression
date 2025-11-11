@@ -85,13 +85,12 @@ class ModelTraining:
         try:
             X_train, y_train, X_test, y_test = self.load_data()
 
-            # 1. Identify Model
-            # n_jobs=-1 -> use all CPU cores
+            # 1. Define Model (with v2 Champion Parameters from config.yaml)
+            champion_params = self.config.training_params.xgboost_params
             model = XGBRegressor(
-                n_estimators=100,
-                learning_rate=0.1,
                 random_state=self.params.random_state,
-                n_jobs=-1
+                n_jobs=-1,
+                **champion_params  # "Champion" parameters from Optuna
             )
 
             # 2. Train Model

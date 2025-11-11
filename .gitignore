@@ -12,3 +12,6 @@ models/
 
 # Virtual environment
 venv/
+
+# MLFlow experimentation logs
+mlruns/
