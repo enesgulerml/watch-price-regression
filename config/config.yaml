@@ -1,0 +1,90 @@
+# -----------------------------------------------------------------------------
+# Project Constitution (config.yaml)
+# ALL rules, paths, and parameters are here.
+# To change the rule, don't touch the CODE, change it here.
+# -----------------------------------------------------------------------------
+
+# 1. Pipeline File Paths
+paths:
+  raw_data: 'data/raw/watch_price_raw.csv'
+
+  # Outputs of pipeline steps
+  step_01_cleaned: 'data/processed/01_cleaned.pkl'
+  step_02_outliers_removed: 'data/processed/02_outliers_removed.pkl'
+  step_03_imputed: 'data/processed/03_imputed.pkl'
+  step_04_features_created: 'data/processed/04_features_created.pkl'
+
+  # Final Model and Data Sets
+  X_train: 'data/final/X_train.pkl'
+  y_train: 'data/final/y_train.pkl'
+  X_test: 'data/final/X_test.pkl'
+  y_test: 'data/final/y_test.pkl'
+
+  scaler: 'models/scaler.joblib'
+  model: 'models/model.joblib'
+
+# 2. Column Names and Definitions (The Most Critical Part)
+columns:
+
+  # The target we will estimate
+  target_original: 'Price (USD)'
+  target_log_transformed: 'Log_Price_USD' # This will be our new goal
+
+  # Unused, noisy columns
+  cols_to_drop:
+    - 'Model'
+    - 'Price_Segment'
+
+  # Distinction between Categorical and Numerical Columns
+  categorical_features:
+    - 'Brand'
+    - 'Gender'
+    - 'Case Color'
+    - 'Glass Shape'
+    - 'Origin'
+    - 'Case Material'
+    - 'Additional Feature'
+    - 'Strap Color'
+    - 'Strap Material'
+    - 'Mechanism'
+    - 'Glass Type'
+    - 'Dial Color'
+
+  numerical_features:
+    - 'Case Diameter'
+    - 'Water Resistance'
+    - 'Warranty (Years)'
+    - 'Weight (g)'
+
+# 3. Outlier Rules
+outlier_rules:
+  'Case Diameter':
+    Female: { min: 0, max: 40 }
+    Unisex: { min: 36, max: 44 }
+    Male:   { min: 0, max: 50 }
+  'Weight (g)':
+    Female: { min: 20, max: 150 }
+    Male:   { min: 40, max: 250 }
+    Unisex: { min: 30, max: 200 }
+
+# 4. Missing Data Filling Rules
+imputation_rules:
+
+  # Strategy 1: Fill with constant value
+  fixed_value:
+    'Additional Feature': 'No'
+    'Strap Color': 'Unknown'
+    'Mechanism': 'Unknown'
+
+  # Strategy 2: Fill with contextual (Groupby) median
+  groupby_median:
+    - target_col: 'Case Diameter'
+      groupby_cols: ['Gender']
+
+    - target_col: 'Weight (g)'
+      groupby_cols: ['Gender', 'Case Material']
+
+# 5. Model Parameters
+training_params:
+  test_size: 0.2
+  random_state: 42

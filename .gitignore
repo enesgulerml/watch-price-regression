@@ -9,3 +9,6 @@ models/
 
 # Environment variables
 .env
+
+# Virtual environment
+venv/
