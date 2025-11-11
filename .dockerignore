@@ -1,0 +1,19 @@
+# Git Files
+.git/
+.gitignore
+
+# Conda env
+.conda/
+.idea/
+*.egg-info/
+
+# Processed Data
+data/
+models/
+mlruns/
+notebooks/
+
+# Docker and other OS files
+Dockerfile
+.dockerignore
+README.md

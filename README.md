@@ -160,7 +160,7 @@ python src/run_tuning.py
 ```
 Go to http://127.0.0.1:5001 to see the 50 experiments logged live.
 
-### 3. (v3) Run the API Server
+### 3. (v3) Run the API Server (Local)
 This loads the v2 champion models (model.joblib, scaler.joblib) and serves them via a FastAPI endpoint.
 
 ```bash
@@ -175,4 +175,23 @@ Go to your browser and open the automatic Swagger documentation:
 
 You can use the "Try it out" button on the /predict endpoint to send a test JSON and get a live price prediction.
 
+## (v4) Build & Run the API Server (Docker)
+This is the "production" way. It builds the v3 API into a self-contained container.
 
+**Step 3.1:** Build the Docker Image This command reads the Dockerfile and builds your portable API image.
+
+```bash
+docker build -t watch-api:v4 .
+```
+
+**Step 3.2:** Run the Docker Container This command runs the image and "mounts" (connects) your local models/ folder to the container's /app/models/ folder.
+
+```bash
+docker run --rm -p 8000:8000 -v ${pwd}/models:/app/models watch-api:v4
+```
+
+**Step 3.3:** Test the Dockerized API Go to your browser and open the automatic Swagger documentation served from the container:
+
+* http://127.0.0.1:8000/docs
+
+You can now use the "Try it out" button to get live predictions from your Dockerized v4 API.
