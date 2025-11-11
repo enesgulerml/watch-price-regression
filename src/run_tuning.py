@@ -10,8 +10,6 @@ from xgboost import XGBRegressor
 from sklearn.metrics import mean_absolute_error, r2_score
 
 # Add the project root directory to the Python path
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-sys.path.append(str(PROJECT_ROOT))
 
 from src.utils import load_config
 

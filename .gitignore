@@ -15,3 +15,6 @@ venv/
 
 # MLFlow experimentation logs
 mlruns/
+
+# Python package build artifacts
+*.egg-info/
