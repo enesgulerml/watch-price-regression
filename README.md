@@ -1,24 +1,28 @@
-# End-to-End Watch Price Regression (MLOps v3.0: API)
+# End-to-End Watch Price Regression (MLOps v5.0: Streamlit)
 
 This is an end-to-end Machine Learning Operations (MLOps) pipeline built to "Google-level" standards, designed to predict the price of a watch based on its features.
 
 This repository demonstrates a full MLOps lifecycle:
-1.  **v1 (Baseline):** A robust 6-step pipeline was built to fix a flawed prototype (fixing 5 "Cardinal Sins" like Data Leakage), achieving a baseline MAE of `$572`.
+1.  **v1 (Baseline):** A robust 6-step pipeline was built to fix 5 "Cardinal Sins" (Data Leakage, etc.), achieving a baseline MAE of `$572`.
 2.  **v2 (Optimization):** The baseline was optimized using **MLFlow** and **Optuna** to run 50+ experiments, finding a "champion" model that reduced the **MAE to $514.33**.
-3.  **v3 (Serving):** The v2 "champion" model and preprocessor were packaged into a high-performance **FastAPI** server, ready for deployment.
+3.  **v3 (Serving):** The v2 "champion" model was packaged into a high-performance **FastAPI** server, built as an installable Python package.
+4.  **v4 (Deployment):** The v3 FastAPI server was containerized using **Docker**, making the entire API portable and isolated.
+5.  **v5 (Presentation):** This **Streamlit** dashboard was created as a "client-facing" UI that consumes the v4 Dockerized API.
 
 ---
 
-## 🏛️ MLOps Architecture: The "Factory" & The "Store"
+## 🏛️ MLOps Architecture: Factory, Store & Showroom
 
 This project is built on the core MLOps principle of **Separating Logic from Configuration**.
 
 * **`config/config.yaml` (The Brain):**
-    The "single source of truth." All file paths, outlier rules, imputation strategies, and final champion model parameters (found by Optuna) are defined here.
+    The "single source of truth." All file paths, outlier rules, imputation strategies, and final champion model parameters are defined here.
 * **`src/` (The Factory):**
-    Contains the 6-step pipeline (`src/pipeline/`) and the experiment lab (`src/run_tuning.py`). Its only job is to *produce* the final models (`model.joblib`, `scaler.joblib`).
+    Contains the 6-step pipeline (`src/pipeline/`) and the experiment lab (`src/run_tuning.py`). Its only job is to *produce* the final models.
 * **`app/` (The Store):**
-    Contains the **FastAPI** server (`app/main.py`) and data schema (`app/schema.py`). Its only job is to *use* (serve) the models produced by the "Factory".
+    Contains the **FastAPI** server (`app/main.py`). Its only job is to *serve* the models. This is the **Backend API**.
+* **`dashboard/` (The Showroom):**
+    Contains the **Streamlit** dashboard (`dashboard/app.py`). It is a "dumb" client that *consumes* the API. This is the **Frontend UI**.
 
 ---
 
@@ -28,84 +32,68 @@ watch-price-regression/
 
 │
 
-├── app/ <- (v3: The "Store" - FastAPI Server)
+├── app/                      <- (v3: The "Store" - Backend API)
 
-│ ├── init.py
+│   ├── init.py
 
-│ ├── main.py <- (FastAPI app definition, /predict endpoint)
+│   ├── main.py               <- (FastAPI app definition)
 
-│ └── schema.py <- (Pydantic input validation schema)
-
-│
-
-├── config/
-
-│ └── config.yaml <- (The "Brain": All paths, rules, params)
+│   └── schema.py             <- (Pydantic input schema)
 
 │
 
-├── data/
+├── config/                   <- (The "Brain": All config)
 
-│ ├── raw/ <- (Raw data, .gitignored)
-
-│ ├── processed/ <- (Intermediate pipeline steps, .gitignored)
-
-│ └── final/ <- (Train/Test sets, .gitignored)
+│   └── config.yaml
 
 │
 
-├── models/
+├── dashboard/                <- (v5: The "Showroom" - Frontend UI)
 
-│ ├── scaler.joblib <- (The fitted preprocessor, .gitignored)
-
-│ └── model.joblib <- (The v2 "champion" model, .gitignored)
+│   └── app.py                <- (Streamlit dashboard script)
 
 │
 
-├── mlruns/ <- (v2: MLFlow experiment logs, .gitignored)
+├── data/                     <- (.gitignored: Raw & Processed Data)
+
+├── models/                   <- (.gitignored: Trained v2 Models)
+
+├── mlruns/                   <- (.gitignored: v2 MLFlow Logs)
+
+├── notebooks/                <- (Initial R&D)
 
 │
 
-├── notebooks/
+├── src/                      <- (v1-v2: The "Factory" - Training Code)
 
-│ └── 01-eda.ipynb <- (Initial R&D and scratchpad)
+│   ├── init.py
 
-│
+│   ├── pipeline/
 
-├── src/ <- (v1-v2: The "Factory" - Training Code)
+│   │   ├── ... (6 pipeline steps)
 
-│ ├── init.py
+│   ├── run_tuning.py         <- (v2: Optuna + MLFlow experiment runner)
 
-│ ├── pipeline/
-
-│ │ ├── _01_data_ingestion.py
-
-│ │ ├── _02_outlier_removal.py
-
-│ │ ├── _03_imputation.py
-
-│ │ ├── _04_feature_creation.py
-
-│ │ ├── _05_data_transformation.py
-
-│ │ └── _06_model_training.py
-
-│ ├── run_tuning.py <- (v2: Optuna + MLFlow experiment runner)
-
-│ └── utils.py <- (Helper function to load config)
+│   └── utils.py              <- (Helper function to load config)
 
 │
 
-├── .gitignore <- (.gitignored mlruns, data, models etc.)
+├── .dockerignore             <- (v4: Tells Docker what not to copy)
 
-├── environment.yml <- (Conda environment dependencies)
+├── .gitignore                <- (Tells Git what not to track)
 
-├── setup.py <- (Makes 'src' and 'app' installable packages)
+├── Dockerfile                <- (v4: The API container "recipe")
 
-└── README.md <- (This file - The project user manual)
+├── environment.yml           <- (Conda environment dependencies)
+
+├── setup.py                  <- (Makes 'src' and 'app' installable packages)
+
+└── README.md                 <- (This file - The project user manual)
 ```
 
 ---
+---
+
 ## 🛠️ Installation & Setup
 
 Follow these steps to set up the project environment on your local machine.
@@ -128,70 +116,58 @@ Follow these steps to set up the project environment on your local machine.
     ```
 
 4.  **Install the Project Package:**
-    This is the crucial step that makes your `src` and `app` code importable without hacks.
+    This is the crucial step that makes your `src` and `app` code importable.
     ```bash
     pip install -e .
     ```
 
 ---
 
-## ⚡ How to Use the Project
+## ⚡ How to Use the Project (v5)
 
-### 1. (v1-v2) Train the Champion Model
-This runs the full 6-step pipeline using the "champion" parameters in `config.yaml` and saves the final models to the `models/` directory.
+Running the v5 dashboard requires **two separate terminals** running at the same time: The "Store" (API) and the "Showroom" (UI).
+
+### ➡️ Terminal 1: Run the API Server (v4 Docker)
+This runs the v4 "Store" API inside its Docker container.
 
 ```bash
-# Run the final step (which uses the outputs of the previous 5)
+# (Re-build the image if you changed the API code)
+# docker build -t watch-api:v4 .
+
+# Run the container (mounting the models folder)
+docker run --rm -p 8001:8000 -v ${pwd}/models:/app/models watch-api:v4
+```
+This terminal will be busy running the API at http://127.0.0.1:8001.
+
+### ➡️ Terminal 2: Run the Streamlit Dashboard (v5 UI)
+This runs the v5 "Showroom" UI.
+
+```bash
+# (Make sure you are in the 'watch-ml' conda environment)
+conda activate watch-ml
+
+# Run the Streamlit app
+streamlit run dashboard/app.py
+```
+This will automatically open your browser to the Streamlit app (usually http://127.0.0.1:8501).
+
+You can now interact with the UI, which will send live prediction requests to the API running in Terminal 1.
+
+## (Optional) Development & Training
+### Train the Champion Model (v1-v2)
+To run the full 6-step training pipeline:
+
+```bash
 python src/pipeline/_06_model_training.py
 ```
 
-* v1 Baseline (MAE): $572.25
-* v2 Champion (MAE): $514.33
-
-### 2. (Optional) Run Your Own v2 Experiments
-To run your own 50-trial optimization (and see MLFlow in action):
+### Run MLFlow Experiments (v2)
+To find better models:
 
 ```bash
-# In Terminal 1 (The Lab Notebook):
+# Terminal 1:
 mlflow ui --port 5001
 
-# In Terminal 2 (The Scientist):
+# Terminal 2:
 python src/run_tuning.py
 ```
-Go to http://127.0.0.1:5001 to see the 50 experiments logged live.
-
-### 3. (v3) Run the API Server (Local)
-This loads the v2 champion models (model.joblib, scaler.joblib) and serves them via a FastAPI endpoint.
-
-```bash
-uvicorn app.main:app --reload --port 8000
-```
-This will start the server on http://127.0.0.1:8000.
-
-### 4. Test the API
-Go to your browser and open the automatic Swagger documentation:
-
-* http://localhost:8000/docs
-
-You can use the "Try it out" button on the /predict endpoint to send a test JSON and get a live price prediction.
-
-## (v4) Build & Run the API Server (Docker)
-This is the "production" way. It builds the v3 API into a self-contained container.
-
-**Step 3.1:** Build the Docker Image This command reads the Dockerfile and builds your portable API image.
-
-```bash
-docker build -t watch-api:v4 .
-```
-
-**Step 3.2:** Run the Docker Container This command runs the image and "mounts" (connects) your local models/ folder to the container's /app/models/ folder.
-
-```bash
-docker run --rm -p 8000:8000 -v ${pwd}/models:/app/models watch-api:v4
-```
-
-**Step 3.3:** Test the Dockerized API Go to your browser and open the automatic Swagger documentation served from the container:
-
-* http://127.0.0.1:8000/docs
-
-You can now use the "Try it out" button to get live predictions from your Dockerized v4 API.
