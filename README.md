@@ -92,6 +92,7 @@ watch-price-regression/
 ```
 
 ---
+
 ---
 
 ## 🛠️ Installation & Setup
@@ -100,7 +101,7 @@ Follow these steps to set up the project environment on your local machine.
 
 1.  **Clone the Repository:**
     ```bash
-    git clone [https://github.com/enesml/watch-price-regression.git](https://github.com/enesml/watch-price-regression.git)
+    git clone https://github.com/enesml/watch-price-regression.git
     cd watch-price-regression
     ```
 
@@ -129,19 +130,18 @@ Running the v5 dashboard requires **two separate terminals** running at the same
 
 ### ➡️ Terminal 1: Run the API Server (v4 Docker)
 This runs the v4 "Store" API inside its Docker container.
+*(Note: We use port 8001 to avoid conflicts with common 'zombie' port 8000).*
 
 ```bash
 # (Re-build the image if you changed the API code)
 # docker build -t watch-api:v4 .
 
-# Run the container (mounting the models folder)
+# Run the container (mapping host 8001 to container 8000)
 docker run --rm -p 8001:8000 -v ${pwd}/models:/app/models watch-api:v4
 ```
 This terminal will be busy running the API at http://127.0.0.1:8001.
 
 ### ➡️ Terminal 2: Run the Streamlit Dashboard (v5 UI)
-This runs the v5 "Showroom" UI.
-
 ```bash
 # (Make sure you are in the 'watch-ml' conda environment)
 conda activate watch-ml
@@ -149,15 +149,22 @@ conda activate watch-ml
 # Run the Streamlit app
 streamlit run dashboard/app.py
 ```
-This will automatically open your browser to the Streamlit app (usually http://127.0.0.1:8501).
+This will automatically open your browser to the Streamlit app (usually http://localhost:8501).
 
 You can now interact with the UI, which will send live prediction requests to the API running in Terminal 1.
 
+---
+
 ## (Optional) Development & Training
 ### Train the Champion Model (v1-v2)
-To run the full 6-step training pipeline:
+This runs the full 6-step pipeline in sequence.
 
 ```bash
+python src/pipeline/_01_data_ingestion.py
+python src/pipeline/_02_outlier_removal.py
+python src/pipeline/_03_imputation.py
+python src/pipeline/_04_feature_creation.py
+python src/pipeline/_05_data_transformation.py
 python src/pipeline/_06_model_training.py
 ```
 
@@ -171,3 +178,4 @@ mlflow ui --port 5001
 # Terminal 2:
 python src/run_tuning.py
 ```
+
