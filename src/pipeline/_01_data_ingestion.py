@@ -5,6 +5,8 @@ import sys
 
 # Add the project root directory (watch-price-regression) to the Python path.
 
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
 # Now we can import the 'utils' module under 'src'
 from src.utils import load_config
 
