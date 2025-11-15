@@ -179,3 +179,27 @@ mlflow ui --port 5001
 python src/run_tuning.py
 ```
 
+## 🧪 v6: Running the Automated Tests (QA)
+This project is insured by Pytest to guarantee that the "Factory" (src/) and "Store" (app/) components are working correctly.
+
+(Note: These tests require the models/ folder to be populated. Run the Training Pipeline (Step 1 below) at least once before testing.)
+
+To run all automated tests (4 tests total):
+
+```bash
+# (Make sure you are in the 'watch-ml' conda environment)
+pytest
+```
+
+### Expected Output (Success):
+
+```bash
+============================= test session starts ==============================
+collected 4 items
+
+tests\test_api.py ...                                                    [ 75%]
+tests\test_pipeline.py .                                                 [100%]
+
+============================== 4 passed in 1.20s ===============================
+```
+
